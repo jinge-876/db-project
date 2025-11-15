@@ -1,63 +1,7 @@
-<!DOCTYPE html>
-<html>
-  <head>
-    <meta charset="utf-8">
-    <meta http-equiv="X-UA-Compatible" content="IE=edge">
-    <meta name="viewport" content="width=device-width, initial-scale=1">
+{% extends "base.html" %}
 
-    <link rel="stylesheet"
-      href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.5/css/bootstrap.min.css"
-      integrity="sha512-dTfge/zgoMYpP7QbHy4gWMEGsbsdZeCXz7irItjcC3sPUFtf0kuFbDz/ixG7ArTxmDjLXDmezHubeNikyKGVyQ=="
-      crossorigin="anonymous">
-
-    <title>Meine TODOs</title>
-
-    <style>
-      body { background-color: #f9f9f9; }
-      .todo-list { margin-top: 30px; list-style: none; padding: 0; }
-      .todo-item {
-        position: relative; background: #fff;
-        padding: 16px 20px 12px 20px; margin-bottom: 16px; border-radius: 8px;
-        box-shadow: 0 2px 5px rgba(0,0,0,0.06); line-height: 1.5;
-      }
-      .todo-content { font-weight: 600; }
-      .todo-date { display: block; color: #999; font-size: 0.9em; margin-top: 6px; }
-      .todo-form { margin-top: 28px; background: #fff; padding: 16px; border-radius: 8px; box-shadow: 0 2px 5px rgba(0,0,0,0.05); }
-      .todo-item { display: block; }
-      .todo-complete-form {
-        display: flex;
-        align-items: center;
-        gap: 20px;
-        margin: 0; padding: 0; border: 0; background: transparent;
-      }
-      .todo-checkbox {
-        width: 20px; height: 20px; margin: 0;
-        accent-color: #5cb85c;
-      }
-      .todo-content { font-weight: 600; flex: 1; }
-      .navbar-brand { font-weight: 600; }
-    </style>
-  </head>
-
-  <body>
-    <nav class="navbar navbar-inverse">
-      <div class="container">
-        <div class="navbar-header">
-          <button type="button" class="navbar-toggle collapsed" data-toggle="collapse"
-            data-target="#navbar" aria-expanded="false" aria-controls="navbar">
-            <span class="sr-only">Toggle navigation</span>
-            <span class="icon-bar"></span>
-            <span class="icon-bar"></span>
-            <span class="icon-bar"></span>
-          </button>
-          <a class="navbar-brand" href="#">Meine TODOs</a>
-        </div>
-      </div>
-    </nav>
-
-    <div class="container">
-
-      <ul class="todo-list">
+{% block content %}
+    <ul class="todo-list">
           {% for todo in todos %}
             <li class="todo-item">
               <form action="/complete" method="POST" class="todo-complete-form">
@@ -98,10 +42,9 @@
             <p class="help-block">Wähle Datum & Uhrzeit (z. B. 07.11.2025 14:30).</p>
           </div>
 
-          <button type="submit" class="btn btn-success">TODO hinzufügen</button>
+          <button type="submit" class="btn btn-primary btn-block">TODO hinzufügen</button>
         </form>
       </div>
+{% endblock %}
 
-    </div>
-  </body>
-</html>
+      

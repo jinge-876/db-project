@@ -47,40 +47,58 @@ def webhook():
     return 'Unathorized', 401
 
 # Auth routes
+@app.route("/login", methods=["GET", "POST"])
+def login():
+    error = None
+
+    if request.method == "POST":
+        user = authenticate(
+            request.form["username"],
+            request.form["password"]
+        )
+
+        if user:
+            login_user(user)
+            return redirect(url_for("index"))
+
+        error = "Benutzername oder Passwort ist falsch."
+
+    return render_template(
+        "auth.html",
+        title="In dein Konto einloggen",
+        action=url_for("login"),
+        button_label="Einloggen",
+        error=error,
+        footer_text="Noch kein Konto?",
+        footer_link_url=url_for("register"),
+        footer_link_label="Registrieren"
+    )
+
+
 @app.route("/register", methods=["GET", "POST"])
 def register():
+    error = None
+
     if request.method == "POST":
         username = request.form["username"]
         password = request.form["password"]
 
         ok = register_user(username, password)
-        if not ok:
-            return render_template(
-                "sign_up.html",
-                error="Username existiert bereits."
-            )
+        if ok:
+            return redirect(url_for("login"))
 
-        return redirect(url_for("login"))
+        error = "Benutzername existiert bereits."
 
-    return render_template("sign_up.html")
-
-@app.route("/login", methods=["GET", "POST"])
-def login():
-    if request.method == "POST":
-        username = request.form["username"]
-        password = request.form["password"]
-
-        user = authenticate(username, password)
-        if user:
-            login_user(user)
-            return redirect(url_for("index"))
-        else:
-            return render_template(
-                "login.html",
-                error="Falscher Username oder Passwort."
-            )
-
-    return render_template("login.html")
+    return render_template(
+        "auth.html",
+        title="Neues Konto erstellen",
+        action=url_for("register"),
+        button_label="Registrieren",
+        error=error,
+        footer_text="Du hast bereits ein Konto?",
+        footer_link_url=url_for("login"),
+        footer_link_label="Einloggen"
+    )
 
 @app.route("/logout")
 @login_required

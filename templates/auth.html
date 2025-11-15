@@ -1,0 +1,76 @@
+{% extends "base.html" %}
+
+{% block content %}
+<style>
+  .auth-wrapper {
+    max-width: 400px;
+    margin: 50px auto;
+  }
+  .auth-card {
+    background: #ffffff;
+    padding: 30px 30px 25px;
+    border-radius: 8px;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.06);
+  }
+  .auth-title {
+    font-size: 26px;
+    font-weight: 600;
+    margin-top: 0;
+    margin-bottom: 20px;
+  }
+  .error { color: red; margin-bottom: 15px; }
+  .auth-footer-text {
+    font-size: 13px;
+    margin-top: 15px;
+    text-align: center;
+  }
+  .auth-footer-text a { font-weight: 600; }
+</style>
+
+<div class="auth-wrapper">
+  <div class="auth-card">
+
+    <h1 class="auth-title">{{ title }}</h1>
+
+    {% if error %}
+      <p class="error">{{ error }}</p>
+    {% endif %}
+
+    <form action="{{ action }}" method="post">
+      <div class="form-group">
+        <label for="username">Benutzername</label>
+        <input
+          type="text"
+          class="form-control"
+          name="username"
+          placeholder="Benutzername"
+          required
+        >
+      </div>
+
+      <div class="form-group">
+        <label for="password">Passwort</label>
+        <input
+          type="password"
+          class="form-control"
+          name="password"
+          placeholder="Passwort"
+          required
+        >
+      </div>
+
+      <button type="submit" class="btn btn-primary btn-block">
+        {{ button_label }}
+      </button>
+    </form>
+
+    {% if footer_text %}
+      <p class="auth-footer-text">
+        {{ footer_text }}
+        <a href="{{ footer_link_url }}">{{ footer_link_label }}</a>
+      </p>
+    {% endif %}
+
+  </div>
+</div>
+{% endblock %}
