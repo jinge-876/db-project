@@ -1,3 +1,4 @@
+from flask import jsonify
 from flask import Flask, redirect, render_template, request, url_for
 from dotenv import load_dotenv
 import os
@@ -107,6 +108,65 @@ def logout():
     return redirect(url_for("index"))
 
 
+# --- DB visualisation routes ---
+@app.route("/db_viz")
+@login_required
+def db_viz():
+    """
+    Renders a D3 page that visualizes the database objects (users + todos)
+    as a hierarchical edge-bundling plot.
+    """
+    return render_template("db_viz.html")
+
+
+@app.route("/db_viz/data")
+@login_required
+def db_viz_data():
+    """
+    Returns a JSON structure for D3:
+    {
+      "classes": [
+         {"name": "users.1", "label": "alice"},
+         {"name": "todos.3", "label": "Buy milk", "imports": ["users.1"]}
+         ...
+      ]
+    }
+    Each todo has an import pointing to the user it references (by id).
+    """
+    # Load users
+    users = db_read("SELECT id, username FROM users ORDER BY id", ())
+    # Load todos
+    todos = db_read("SELECT id, user_id, content, due FROM todos ORDER BY id", ())
+
+    classes = []
+
+    # Create user leaves: name = "users.<id>"
+    for u in users:
+        # safe label
+        uname = u.get("username") or f"user{u['id']}"
+        classes.append({
+            "name": f"users.{u['id']}",
+            "label": uname,
+            # users won't import anyone
+            "imports": []
+        })
+
+    # Create todo leaves: name = "todos.<id>", imports -> users.<user_id>
+    for t in todos:
+        # short content label (truncate for display if too long)
+        content = t.get("content") or ""
+        label = (content[:50] + "...") if len(content) > 50 else content
+        import_to = f"users.{t['user_id']}" if t.get("user_id") is not None else None
+
+        entry = {"name": f"todos.{t['id']}", "label": label}
+        # only add imports if valid
+        if import_to:
+            entry["imports"] = [import_to]
+        else:
+            entry["imports"] = []
+        classes.append(entry)
+
+    return jsonify({"classes": classes})
 
 # App routes
 @app.route("/", methods=["GET", "POST"])
