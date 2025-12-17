@@ -203,3 +203,35 @@ def users():
 
 if __name__ == "__main__":
     app.run()
+
+from flask import jsonify
+
+@app.route("/db_viz")
+@login_required
+def db_viz():
+    return render_template("db_viz.html")
+
+
+@app.route("/db_viz/data")
+@login_required
+def db_viz_data():
+    users = db_read("SELECT id, username FROM users", ())
+    todos = db_read("SELECT id, user_id, content FROM todos", ())
+
+    classes = []
+
+    for u in users:
+        classes.append({
+            "name": f"users.{u['id']}",
+            "label": u["username"],
+            "imports": []
+        })
+
+    for t in todos:
+        classes.append({
+            "name": f"todos.{t['id']}",
+            "label": t["content"],
+            "imports": [f"users.{t['user_id']}"]
+        })
+
+    return jsonify({"classes": classes})
