@@ -193,18 +193,8 @@ def complete():
 @app.route("/users", methods=["GET"])
 @login_required
 def users():
-    pass
-
-@app.route("/users", methods=["GET"])
-@login_required
-def users():
     users = db_read("SELECT username FROM users ORDER BY username", ())
     return render_template("users.html", users=users)
-
-if __name__ == "__main__":
-    app.run()
-
-from flask import jsonify
 
 @app.route("/db_viz")
 @login_required
@@ -235,3 +225,7 @@ def db_viz_data():
         })
 
     return jsonify({"classes": classes})
+
+
+if __name__ == "__main__":
+    app.run()
