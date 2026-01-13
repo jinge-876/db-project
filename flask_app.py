@@ -196,6 +196,67 @@ def users():
     users = db_read("SELECT username FROM users ORDER BY username", ())
     return render_template("users.html", users=users)
 
+# DB Explorer routes
+@app.route("/dbexplorer", methods=["GET", "POST"])
+@login_required
+def dbexplorer():
+    """
+    Interactive database explorer that lets users view any table
+    """
+    # Liste aller verfügbaren Tabellen
+    available_tables = [
+        "users", 
+        "todos", 
+        "patient", 
+        "medizin", 
+        "arzt", 
+        "aktuellerAufenthalt",
+        "nimmt",
+        "behandelt"
+    ]
+    
+    selected_table = None
+    table_data = []
+    columns = []
+    error = None
+    
+    if request.method == "POST":
+        selected_table = request.form.get("table")
+        limit = request.form.get("limit", "50")
+        search_column = request.form.get("search_column", "")
+        search_value = request.form.get("search_value", "")
+        
+        # Validierung: Tabelle muss in der Liste sein
+        if selected_table not in available_tables:
+            error = "Ungültige Tabelle ausgewählt."
+        else:
+            try:
+                # Basis-Query
+                if search_column and search_value:
+                    # Mit Suche (LIKE für Textsuche)
+                    sql = f"SELECT * FROM {selected_table} WHERE {search_column} LIKE %s LIMIT {int(limit)}"
+                    table_data = db_read(sql, (f"%{search_value}%",))
+                else:
+                    # Ohne Suche
+                    sql = f"SELECT * FROM {selected_table} LIMIT {int(limit)}"
+                    table_data = db_read(sql)
+                
+                # Spaltennamen extrahieren
+                if table_data:
+                    columns = list(table_data[0].keys())
+                    
+            except Exception as e:
+                error = f"Fehler beim Laden der Daten: {str(e)}"
+                table_data = []
+    
+    return render_template(
+        "dbexplorer.html",
+        available_tables=available_tables,
+        selected_table=selected_table,
+        columns=columns,
+        table_data=table_data,
+        error=error
+    )
 
 if __name__ == "__main__":
     app.run()
