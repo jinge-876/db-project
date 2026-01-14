@@ -12,9 +12,25 @@ DB_CONFIG = {
 }
 
 # Init db
-pool = pooling.MySQLConnectionPool(pool_name="pool", pool_size=5, **DB_CONFIG)
+_pool = None
+
+def _get_pool():
+    global _pool
+    if _pool is None:
+        # Check: ENV wirklich gesetzt?
+        missing = [k for k, v in DB_CONFIG.items() if not v]
+        if missing:
+            raise RuntimeError(f"Missing DB env vars: {missing}")
+
+        _pool = pooling.MySQLConnectionPool(
+            pool_name="pool",
+            pool_size=5,
+            **DB_CONFIG
+        )
+    return _pool
+
 def get_conn():
-    return pool.get_connection()
+    return _get_pool().get_connection()
 
 # DB-Helper
 def db_read(sql, params=None, single=False):
@@ -57,47 +73,48 @@ def db_write(sql, params=None):
         conn.close()
 
 def init_schema_and_seed():
-    """
-    Erstellt benötigte Tabellen (falls nicht vorhanden) und fügt Testdaten ein.
-    Läuft sicher mehrfach, ohne doppelte Datensätze zu erzeugen.
-    """
-    schema_sql = """
-    CREATE TABLE IF NOT EXISTS patient (
-      patientennummer INT PRIMARY KEY,
-      alter INT,
-      name TEXT,
-      krankenkasse TEXT,
-      krankheiten TEXT,
-      `ehemalige aufenthalte` TEXT,
-      `ehemalige medikamente` TEXT,
-      bettnummer INT
-    );
-    """
-
-    seed_sql = """
-    INSERT INTO patient
-      (patientennummer, alter, name, krankenkasse, krankheiten,
-       `ehemalige aufenthalte`, `ehemalige medikamente`, bettnummer)
-    VALUES
-      (1001, 34, 'Mila Meier', 'CSS', 'Asthma', '2019: Bronchitis', 'Salbutamol', 12),
-      (1002, 58, 'Noah Keller', 'Helsana', 'Diabetes Typ 2', '2021: Knie-OP', 'Metformin', 14),
-      (1003, 22, 'Lea Schmid', 'SWICA', 'Migräne', '2020: Beobachtung', 'Ibuprofen', 15)
-    ON DUPLICATE KEY UPDATE patientennummer = patientennummer;
-    """
-
-    conn = get_conn()
     try:
-        cur = conn.cursor()
-        # 1) Schema
-        cur.execute(schema_sql)
-        # 2) Seed (idempotent durch ON DUPLICATE KEY UPDATE)
-        cur.execute(seed_sql)
+        schema_sql = """
+        CREATE TABLE IF NOT EXISTS patient (
+          patientennummer INT PRIMARY KEY,
+          alter INT,
+          name TEXT,
+          krankenkasse TEXT,
+          krankheiten TEXT,
+          `ehemalige aufenthalte` TEXT,
+          `ehemalige medikamente` TEXT,
+          bettnummer INT
+        );
+        """
 
+        seed_sql = """
+        INSERT INTO patient
+          (patientennummer, alter, name, krankenkasse, krankheiten,
+           `ehemalige aufenthalte`, `ehemalige medikamente`, bettnummer)
+        VALUES
+          (1001, 34, 'Mila Meier', 'CSS', 'Asthma', '2019: Bronchitis', 'Salbutamol', 12),
+          (1002, 58, 'Noah Keller', 'Helsana', 'Diabetes Typ 2', '2021: Knie-OP', 'Metformin', 14),
+          (1003, 22, 'Lea Schmid', 'SWICA', 'Migräne', '2020: Beobachtung', 'Ibuprofen', 15)
+        ON DUPLICATE KEY UPDATE patientennummer = patientennummer;
+        """
+
+        conn = get_conn()
+        cur = conn.cursor()
+        cur.execute(schema_sql)
+        cur.execute(seed_sql)
         conn.commit()
-        print("✅ init_schema_and_seed: schema ok + seed ok")
+        print("✅ init_schema_and_seed ok")
+
+    except Exception as e:
+        print("⚠️ init_schema_and_seed failed:", e)
+
     finally:
         try:
             cur.close()
         except:
             pass
-        conn.close()
+        try:
+            conn.close()
+        except:
+            pass
+
