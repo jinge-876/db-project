@@ -130,20 +130,16 @@ def db_viz():
 @login_required
 @app.route("/db_viz/data")
 @login_required
+@app.route("/db_viz/data")
+@login_required
 def db_viz_data():
     classes = []
 
-    # ---------- Users (optional, lässt du drin wenn du willst) ----------
     users = db_read("SELECT id, username FROM users ORDER BY id", ())
     for u in users:
         uname = u.get("username") or f"user{u['id']}"
-        classes.append({
-            "name": f"users.{u['id']}",
-            "label": uname,
-            "imports": []
-        })
+        classes.append({"name": f"users.{u['id']}", "label": uname, "imports": []})
 
-    # ---------- Todos (optional) ----------
     todos = db_read("SELECT id, user_id, content, due FROM todos ORDER BY id", ())
     for t in todos:
         content = t.get("content") or ""
@@ -155,59 +151,35 @@ def db_viz_data():
             entry["imports"] = [import_to]
         classes.append(entry)
 
-    # ---------- Patients ----------
     patients = db_read("SELECT patientennummer, name FROM patient ORDER BY patientennummer", ())
     for p in patients:
-        classes.append({
-            "name": f"patient.{p['patientennummer']}",
-            "label": p["name"],
-            "imports": []
-        })
+        classes.append({"name": f"patient.{p['patientennummer']}", "label": p["name"], "imports": []})
 
-    # ---------- Doctors ----------
-    doctors = db_read("SELECT ärztenummer, name FROM arzt ORDER BY ärztenummer", ())
+    doctors = db_read("SELECT `ärztenummer`, name FROM arzt ORDER BY `ärztenummer`", ())
     for d in doctors:
-        classes.append({
-            "name": f"arzt.{d['ärztenummer']}",
-            "label": d["name"],
-            "imports": []
-        })
+        classes.append({"name": f"arzt.{d['ärztenummer']}", "label": d["name"], "imports": []})
 
-    # ---------- Medicine ----------
     meds = db_read("SELECT fachname FROM medizin ORDER BY fachname", ())
     for m in meds:
-        classes.append({
-            "name": f"medizin.{m['fachname']}",
-            "label": m["fachname"],
-            "imports": []
-        })
+        classes.append({"name": f"medizin.{m['fachname']}", "label": m["fachname"], "imports": []})
 
-    # ---------- Patient ↔ Doctor (behandelt) ----------
-    behandelt = db_read("SELECT patientennummer, ärztenummer FROM behandelt", ())
+    behandelt = db_read("SELECT patientennummer, `ärztenummer` FROM behandelt", ())
     for b in behandelt:
         classes.append({
             "name": f"link.patient_arzt.{b['patientennummer']}.{b['ärztenummer']}",
             "label": "",
-            "imports": [
-                f"patient.{b['patientennummer']}",
-                f"arzt.{b['ärztenummer']}",
-            ]
+            "imports": [f"patient.{b['patientennummer']}", f"arzt.{b['ärztenummer']}"]
         })
 
-    # ---------- Patient ↔ Medicine (nimmt) ----------
     nimmt = db_read("SELECT patientennummer, fachname FROM nimmt", ())
     for n in nimmt:
         classes.append({
             "name": f"link.patient_med.{n['patientennummer']}.{n['fachname']}",
             "label": "",
-            "imports": [
-                f"patient.{n['patientennummer']}",
-                f"medizin.{n['fachname']}",
-            ]
+            "imports": [f"patient.{n['patientennummer']}", f"medizin.{n['fachname']}"]
         })
 
     return jsonify({"classes": classes})
-
 
 # App routes
 @app.route("/", methods=["GET", "POST"])
