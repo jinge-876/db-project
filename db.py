@@ -77,7 +77,7 @@ def init_schema_and_seed():
         schema_sql = """
         CREATE TABLE IF NOT EXISTS patient (
           patientennummer INT PRIMARY KEY,
-          alter INT,
+          `alter` INT,
           name TEXT,
           krankenkasse TEXT,
           krankheiten TEXT,
@@ -89,7 +89,7 @@ def init_schema_and_seed():
 
         seed_sql = """
         INSERT INTO patient
-          (patientennummer, alter, name, krankenkasse, krankheiten,
+          (patientennummer, `alter`, name, krankenkasse, krankheiten,
            `ehemalige aufenthalte`, `ehemalige medikamente`, bettnummer)
         VALUES
           (1001, 34, 'Mila Meier', 'CSS', 'Asthma', '2019: Bronchitis', 'Salbutamol', 12),
