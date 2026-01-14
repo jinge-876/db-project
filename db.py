@@ -55,3 +55,49 @@ def db_write(sql, params=None):
         except:
             pass
         conn.close()
+
+def init_schema_and_seed():
+    """
+    Erstellt benötigte Tabellen (falls nicht vorhanden) und fügt Testdaten ein.
+    Läuft sicher mehrfach, ohne doppelte Datensätze zu erzeugen.
+    """
+    schema_sql = """
+    CREATE TABLE IF NOT EXISTS patient (
+      patientennummer INT PRIMARY KEY,
+      alter INT,
+      name TEXT,
+      krankenkasse TEXT,
+      krankheiten TEXT,
+      `ehemalige aufenthalte` TEXT,
+      `ehemalige medikamente` TEXT,
+      bettnummer INT
+    );
+    """
+
+    seed_sql = """
+    INSERT INTO patient
+      (patientennummer, alter, name, krankenkasse, krankheiten,
+       `ehemalige aufenthalte`, `ehemalige medikamente`, bettnummer)
+    VALUES
+      (1001, 34, 'Mila Meier', 'CSS', 'Asthma', '2019: Bronchitis', 'Salbutamol', 12),
+      (1002, 58, 'Noah Keller', 'Helsana', 'Diabetes Typ 2', '2021: Knie-OP', 'Metformin', 14),
+      (1003, 22, 'Lea Schmid', 'SWICA', 'Migräne', '2020: Beobachtung', 'Ibuprofen', 15)
+    ON DUPLICATE KEY UPDATE patientennummer = patientennummer;
+    """
+
+    conn = get_conn()
+    try:
+        cur = conn.cursor()
+        # 1) Schema
+        cur.execute(schema_sql)
+        # 2) Seed (idempotent durch ON DUPLICATE KEY UPDATE)
+        cur.execute(seed_sql)
+
+        conn.commit()
+        print("✅ init_schema_and_seed: schema ok + seed ok")
+    finally:
+        try:
+            cur.close()
+        except:
+            pass
+        conn.close()
