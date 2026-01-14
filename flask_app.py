@@ -125,11 +125,6 @@ def db_viz():
     """
     return render_template("db_viz.html")
 
-
-@app.route("/db_viz/data")
-@login_required
-@app.route("/db_viz/data")
-@login_required
 @app.route("/db_viz/data")
 @login_required
 def db_viz_data():
