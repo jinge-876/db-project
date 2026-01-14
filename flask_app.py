@@ -29,8 +29,11 @@ login_manager.init_app(app)
 login_manager.login_view = "login"
 
 # Init DB schema + seed (SAFE)
-from db import init_schema_and_seed
-init_schema_and_seed()
+try:
+    from db import init_schema_and_seed
+    init_schema_and_seed()
+except Exception as e:
+    print("⚠️ init_schema_and_seed crashed:", repr(e))
 
 # DON'T CHANGE
 def is_valid_signature(x_hub_signature, data, private_key):
