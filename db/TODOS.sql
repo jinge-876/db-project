@@ -23,6 +23,13 @@ CREATE TABLE patient (
     bettnummer INTEGER FOREIGN KEY
 );
 
+INSERT INTO patient
+(patientennummer, alter, name, krankenkasse, krankheiten, `ehemalige aufenthalte`, `ehemalige medikamente`, bettnummer)
+VALUES
+(1001, 34, 'Mila Meier', 'CSS', 'Asthma', '2019: Bronchitis', 'Salbutamol', 12),
+(1002, 58, 'Noah Keller', 'Helsana', 'Diabetes Typ 2', '2021: Knie-OP', 'Metformin', 14),
+(1003, 22, 'Lea Schmid', 'SWICA', 'Migräne', '2020: Beobachtung', 'Ibuprofen', 15);
+
 CREATE TABLE medizin (
     fachname TEXT PRIMARY KEY,
     dosierung TEXT
@@ -36,11 +43,22 @@ CREATE TABLE arzt (
     spezialisierung TEXT
 );
 
+INSERT INTO arzt (ärztenummer, anstellzeit, name, spezialisierung)
+VALUES
+(501, 5, 'Dr. Anna Weber', 'Innere Medizin'),
+(502, 12,'Dr. Tim Fischer','Neurologie');
+
 CREATE TABLE aktuellerAufenthalt (
     bettnummer INTEGER PRIMARY KEY,
     pflegebedarf TEXT,
     anfangsdatum TEXT
 );
+
+INSERT INTO aktuellerAufenthalt (bettnummer, pflegebedarf, anfangsdatum)
+VALUES
+(12, 'mittel', '2026-01-10'),
+(14, 'hoch',   '2026-01-12'),
+(15, 'niedrig','2026-01-13');
 
 CREATE TABLE nimmt (
     fachname TEXT PRIMARY KEY,
@@ -52,5 +70,9 @@ CREATE TABLE behandelt (
     patientennummer INTEGER PRIMARY KEY
 );
 
-
+INSERT INTO behandelt (ärztenummer, patientennummer)
+VALUES
+(501, 1001),
+(501, 1002),
+(502, 1003);
 
