@@ -181,10 +181,10 @@ def db_viz_data():
 
     # Create patient leaves
     for p in patients:
-    classes.append({
-        "name": f"patient.{p['patientennummer']}",
-        "label": p["name"],
-        "imports": []
+        classes.append({
+            "name": f"patient.{p['patientennummer']}",
+            "label": p["name"],
+            "imports": []
     })
 
     return jsonify({"classes": classes})
