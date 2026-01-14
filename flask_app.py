@@ -145,6 +145,12 @@ def db_viz_data():
     # Load todos
     todos = db_read("SELECT id, user_id, content, due FROM todos ORDER BY id", ())
 
+    # Load patients
+    patients = db_read(
+    "SELECT patientennummer, name FROM patient ORDER BY patientennummer",
+    ()
+    )
+    
     classes = []
 
     # Create user leaves: name = "users.<id>"
@@ -172,6 +178,14 @@ def db_viz_data():
         else:
             entry["imports"] = []
         classes.append(entry)
+
+    # Create patient leaves
+    for p in patients:
+    classes.append({
+        "name": f"patient.{p['patientennummer']}",
+        "label": p["name"],
+        "imports": []
+    })
 
     return jsonify({"classes": classes})
 
