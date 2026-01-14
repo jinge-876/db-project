@@ -24,6 +24,10 @@ app = Flask(__name__)
 app.config["DEBUG"] = True
 app.secret_key = "supersecret"
 
+from db import init_schema_and_seed
+
+init_schema_and_seed()
+
 # Init auth
 login_manager.init_app(app)
 login_manager.login_view = "login"
