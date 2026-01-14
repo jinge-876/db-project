@@ -74,7 +74,13 @@ def db_write(sql, params=None):
 
 def init_schema_and_seed():
     try:
-        schema_sql = """
+        conn = get_conn()
+        cur = conn.cursor()
+
+        # -------- CREATE TABLES --------
+
+        # patient (muss zuerst!)
+        cur.execute("""
         CREATE TABLE IF NOT EXISTS patient (
           patientennummer INT PRIMARY KEY,
           `alter` INT,
@@ -85,25 +91,126 @@ def init_schema_and_seed():
           `ehemalige medikamente` TEXT,
           bettnummer INT
         );
-        """
+        """)
 
-        seed_sql = """
+        # medizin
+        cur.execute("""
+        CREATE TABLE IF NOT EXISTS medizin (
+          fachname VARCHAR(255) PRIMARY KEY,
+          dosierung VARCHAR(255)
+        );
+        """)
+
+        # arzt
+        cur.execute("""
+        CREATE TABLE IF NOT EXISTS arzt (
+          ärztenummer INT PRIMARY KEY,
+          name VARCHAR(255),
+          spezialisierung VARCHAR(255),
+          anstellzeit INT
+        );
+        """)
+
+        # aktuellerAufenthalt
+        cur.execute("""
+        CREATE TABLE IF NOT EXISTS aktuellerAufenthalt (
+          bettnummer INT PRIMARY KEY,
+          pflegebedarf TEXT,
+          anfangsdatum DATE
+        );
+        """)
+
+        # nimmt (Patient ↔ Medizin)
+        cur.execute("""
+        CREATE TABLE IF NOT EXISTS nimmt (
+          patientennummer INT,
+          fachname VARCHAR(255),
+          PRIMARY KEY (patientennummer, fachname),
+          FOREIGN KEY (patientennummer) REFERENCES patient(patientennummer),
+          FOREIGN KEY (fachname) REFERENCES medizin(fachname)
+        );
+        """)
+
+        # behandelt (Patient ↔ Arzt)
+        cur.execute("""
+        CREATE TABLE IF NOT EXISTS behandelt (
+          patientennummer INT,
+          ärztenummer INT,
+          PRIMARY KEY (patientennummer, ärztenummer),
+          FOREIGN KEY (patientennummer) REFERENCES patient(patientennummer),
+          FOREIGN KEY (ärztenummer) REFERENCES arzt(ärztenummer)
+        );
+        """)
+
+        # -------- SEEDS (Reihenfolge wichtig) --------
+
+        # medizin zuerst (weil nimmt darauf zeigt)
+        cur.execute("""
+        INSERT INTO medizin (fachname, dosierung)
+        VALUES
+          ('Salbutamol', '2 Hübe bei Atemnot'),
+          ('Metformin', '500 mg morgens und abends'),
+          ('Ibuprofen', '400 mg bei Schmerzen')
+        ON DUPLICATE KEY UPDATE fachname = fachname;
+        """)
+
+        # arzt (weil behandelt darauf zeigt)
+        cur.execute("""
+        INSERT INTO arzt (ärztenummer, name, spezialisierung, anstellzeit)
+        VALUES
+          (1, 'Dr. Anna Weber', 'Innere Medizin', 8),
+          (2, 'Dr. Lukas Frei', 'Neurologie', 5),
+          (3, 'Dr. Sarah Müller', 'Orthopädie', 10)
+        ON DUPLICATE KEY UPDATE ärztenummer = ärztenummer;
+        """)
+
+        # patient (mit ehemalige Aufenthalte)
+        cur.execute("""
         INSERT INTO patient
           (patientennummer, `alter`, name, krankenkasse, krankheiten,
            `ehemalige aufenthalte`, `ehemalige medikamente`, bettnummer)
         VALUES
-          (1001, 34, 'Mila Meier', 'CSS', 'Asthma', '2019: Bronchitis', 'Salbutamol', 12),
-          (1002, 58, 'Noah Keller', 'Helsana', 'Diabetes Typ 2', '2021: Knie-OP', 'Metformin', 14),
-          (1003, 22, 'Lea Schmid', 'SWICA', 'Migräne', '2020: Beobachtung', 'Ibuprofen', 15)
+          (1001, 34, 'Mila Meier', 'CSS', 'Asthma',
+           '2018: Lungenentzündung; 2019: Bronchitis', 'Salbutamol', 12),
+          (1002, 58, 'Noah Keller', 'Helsana', 'Diabetes Typ 2',
+           '2020: Bluthochdruck; 2021: Knie-OP', 'Metformin', 14),
+          (1003, 22, 'Lea Schmid', 'SWICA', 'Migräne',
+           '2019: Beobachtung Neurologie', 'Ibuprofen', 15)
         ON DUPLICATE KEY UPDATE patientennummer = patientennummer;
-        """
+        """)
 
-        conn = get_conn()
-        cur = conn.cursor()
-        cur.execute(schema_sql)
-        cur.execute(seed_sql)
+        # aktueller Aufenthalt
+        cur.execute("""
+        INSERT INTO aktuellerAufenthalt (bettnummer, pflegebedarf, anfangsdatum)
+        VALUES
+          (12, 'mittel', '2026-01-10'),
+          (14, 'hoch', '2026-01-08'),
+          (15, 'niedrig', '2026-01-12')
+        ON DUPLICATE KEY UPDATE bettnummer = bettnummer;
+        """)
+
+        # nimmt (braucht patient + medizin)
+        cur.execute("""
+        INSERT INTO nimmt (patientennummer, fachname)
+        VALUES
+          (1001, 'Salbutamol'),
+          (1002, 'Metformin'),
+          (1003, 'Ibuprofen')
+        ON DUPLICATE KEY UPDATE patientennummer = patientennummer;
+        """)
+
+        # behandelt (braucht patient + arzt)
+        cur.execute("""
+        INSERT INTO behandelt (patientennummer, ärztenummer)
+        VALUES
+          (1001, 1),
+          (1002, 3),
+          (1003, 2)
+        ON DUPLICATE KEY UPDATE patientennummer = patientennummer;
+        """)
+
         conn.commit()
-        print("✅ init_schema_and_seed ok")
+        print("✅ init_schema_and_seed: alle Tabellen + Seed-Daten OK")
 
     except Exception as e:
         print("⚠️ init_schema_and_seed failed:", e)
@@ -117,4 +224,3 @@ def init_schema_and_seed():
             conn.close()
         except:
             pass
-
