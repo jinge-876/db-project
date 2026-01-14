@@ -128,66 +128,86 @@ def db_viz():
 
 @app.route("/db_viz/data")
 @login_required
+@app.route("/db_viz/data")
+@login_required
 def db_viz_data():
-    """
-    Returns a JSON structure for D3:
-    {
-      "classes": [
-         {"name": "users.1", "label": "alice"},
-         {"name": "todos.3", "label": "Buy milk", "imports": ["users.1"]}
-         ...
-      ]
-    }
-    Each todo has an import pointing to the user it references (by id).
-    """
-    # Load users
-    users = db_read("SELECT id, username FROM users ORDER BY id", ())
-    # Load todos
-    todos = db_read("SELECT id, user_id, content, due FROM todos ORDER BY id", ())
-
-    # Load patients
-    patients = db_read(
-    "SELECT patientennummer, name FROM patient ORDER BY patientennummer",
-    ()
-    )
-    
     classes = []
 
-    # Create user leaves: name = "users.<id>"
+    # ---------- Users (optional, lässt du drin wenn du willst) ----------
+    users = db_read("SELECT id, username FROM users ORDER BY id", ())
     for u in users:
-        # safe label
         uname = u.get("username") or f"user{u['id']}"
         classes.append({
             "name": f"users.{u['id']}",
             "label": uname,
-            # users won't import anyone
             "imports": []
         })
 
-    # Create todo leaves: name = "todos.<id>", imports -> users.<user_id>
+    # ---------- Todos (optional) ----------
+    todos = db_read("SELECT id, user_id, content, due FROM todos ORDER BY id", ())
     for t in todos:
-        # short content label (truncate for display if too long)
         content = t.get("content") or ""
         label = (content[:50] + "...") if len(content) > 50 else content
         import_to = f"users.{t['user_id']}" if t.get("user_id") is not None else None
 
-        entry = {"name": f"todos.{t['id']}", "label": label}
-        # only add imports if valid
+        entry = {"name": f"todos.{t['id']}", "label": label, "imports": []}
         if import_to:
             entry["imports"] = [import_to]
-        else:
-            entry["imports"] = []
         classes.append(entry)
 
-    # Create patient leaves
+    # ---------- Patients ----------
+    patients = db_read("SELECT patientennummer, name FROM patient ORDER BY patientennummer", ())
     for p in patients:
         classes.append({
             "name": f"patient.{p['patientennummer']}",
             "label": p["name"],
             "imports": []
-    })
+        })
+
+    # ---------- Doctors ----------
+    doctors = db_read("SELECT ärztenummer, name FROM arzt ORDER BY ärztenummer", ())
+    for d in doctors:
+        classes.append({
+            "name": f"arzt.{d['ärztenummer']}",
+            "label": d["name"],
+            "imports": []
+        })
+
+    # ---------- Medicine ----------
+    meds = db_read("SELECT fachname FROM medizin ORDER BY fachname", ())
+    for m in meds:
+        classes.append({
+            "name": f"medizin.{m['fachname']}",
+            "label": m["fachname"],
+            "imports": []
+        })
+
+    # ---------- Patient ↔ Doctor (behandelt) ----------
+    behandelt = db_read("SELECT patientennummer, ärztenummer FROM behandelt", ())
+    for b in behandelt:
+        classes.append({
+            "name": f"link.patient_arzt.{b['patientennummer']}.{b['ärztenummer']}",
+            "label": "",
+            "imports": [
+                f"patient.{b['patientennummer']}",
+                f"arzt.{b['ärztenummer']}",
+            ]
+        })
+
+    # ---------- Patient ↔ Medicine (nimmt) ----------
+    nimmt = db_read("SELECT patientennummer, fachname FROM nimmt", ())
+    for n in nimmt:
+        classes.append({
+            "name": f"link.patient_med.{n['patientennummer']}.{n['fachname']}",
+            "label": "",
+            "imports": [
+                f"patient.{n['patientennummer']}",
+                f"medizin.{n['fachname']}",
+            ]
+        })
 
     return jsonify({"classes": classes})
+
 
 # App routes
 @app.route("/", methods=["GET", "POST"])
