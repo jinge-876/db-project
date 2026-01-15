@@ -377,5 +377,23 @@ def new_patient():
 
     return render_template("patient_new.html")
 
+@app.route("/arzt/new", methods=["GET", "POST"])
+@login_required
+def new_arzt():
+    if request.method == "POST":
+        aerztenummer = int(request.form["aerztenummer"])
+        name = request.form["name"]
+        spezialisierung = request.form["spezialisierung"]
+        anstellzeit = int(request.form["anstellzeit"])
+
+        db_write("""
+            INSERT INTO arzt (`ärztenummer`, name, spezialisierung, anstellzeit)
+            VALUES (%s, %s, %s, %s)
+        """, (aerztenummer, name, spezialisierung, anstellzeit))
+
+        return redirect(url_for("dbexplorer"))
+
+    return render_template("arzt_new.html")
+
 if __name__ == "__main__":
     app.run()
