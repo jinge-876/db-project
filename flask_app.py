@@ -364,13 +364,14 @@ def new_patient():
         alter = request.form["alter"]
         name = request.form["name"]
         krankenkasse = request.form["krankenkasse"]
-        krankheiten = request.form["krankheiten"]
+        krankheiten = request.form.get("krankheiten", "")
 
         db_write("""
             INSERT INTO patient
-            (patientennummer, `alter`, name, krankenkasse, krankheiten)
-            VALUES (%s, %s, %s, %s, %s)
-        """, (patientennummer, alter, name, krankenkasse, krankheiten))
+            (patientennummer, `alter`, name, krankenkasse, krankheiten,
+             `ehemalige aufenthalte`, `ehemalige medikamente`, bettnummer)
+            VALUES (%s,%s,%s,%s,%s,%s,%s,%s)
+        """, (patientennummer, alter, name, krankenkasse, krankheiten, "", "", 0))
 
         return redirect(url_for("dbexplorer"))
 
