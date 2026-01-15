@@ -412,5 +412,33 @@ def new_aufenthalt():
 
     return render_template("aufenthalt_new.html")
 
+@app.route("/nimmt/new", methods=["GET", "POST"])
+@login_required
+def new_nimmt():
+    if request.method == "POST":
+        patientennummer = int(request.form["patientennummer"])
+        fachname = request.form["fachname"]
+
+        db_write("""
+            INSERT INTO nimmt (patientennummer, fachname)
+            VALUES (%s, %s)
+        """, (patientennummer, fachname))
+
+        return redirect(url_for("dbexplorer"))
+
+    # Daten für Dropdowns laden
+    patients = db_read(
+        "SELECT patientennummer, name FROM patient ORDER BY name"
+    )
+    medikamente = db_read(
+        "SELECT fachname FROM medizin ORDER BY fachname"
+    )
+
+    return render_template(
+        "nimmt_new.html",
+        patients=patients,
+        medikamente=medikamente
+    )
+
 if __name__ == "__main__":
     app.run()
