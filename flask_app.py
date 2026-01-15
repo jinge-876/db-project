@@ -204,6 +204,98 @@ def users():
     users = db_read("SELECT username FROM users ORDER BY username", ())
     return render_template("users.html", users=users)
 
+@app.route("/erfassen", methods=["GET", "POST"])
+@login_required
+def erfassen():
+    message = None
+    error = None
+
+    if request.method == "POST":
+        form_type = request.form.get("form_type")
+
+        try:
+            # -------- Patient --------
+            if form_type == "patient":
+                patientennummer = int(request.form["patientennummer"])
+                alter = int(request.form["alter"])
+                name = request.form["name"]
+                krankenkasse = request.form["krankenkasse"]
+                krankheiten = request.form.get("krankheiten", "")
+                ehemalige_aufenthalte = request.form.get("ehemalige_aufenthalte", "")
+                ehemalige_medikamente = request.form.get("ehemalige_medikamente", "")
+                bettnummer = int(request.form["bettnummer"])
+
+                db_write("""
+                    INSERT INTO patient
+                    (patientennummer, `alter`, name, krankenkasse, krankheiten,
+                     `ehemalige aufenthalte`, `ehemalige medikamente`, bettnummer)
+                    VALUES (%s,%s,%s,%s,%s,%s,%s,%s)
+                """, (patientennummer, alter, name, krankenkasse, krankheiten,
+                      ehemalige_aufenthalte, ehemalige_medikamente, bettnummer))
+
+                message = "✅ Patient gespeichert!"
+
+            # -------- Arzt --------
+            elif form_type == "arzt":
+                a_nr = int(request.form["aerztenummer"])
+                name = request.form["name"]
+                spezialisierung = request.form["spezialisierung"]
+                anstellzeit = int(request.form["anstellzeit"])
+
+                db_write("""
+                    INSERT INTO arzt (`ärztenummer`, name, spezialisierung, anstellzeit)
+                    VALUES (%s,%s,%s,%s)
+                """, (a_nr, name, spezialisierung, anstellzeit))
+
+                message = "✅ Arzt gespeichert!"
+
+            # -------- Medizin --------
+            elif form_type == "medizin":
+                fachname = request.form["fachname"]
+                dosierung = request.form["dosierung"]
+
+                db_write("""
+                    INSERT INTO medizin (fachname, dosierung)
+                    VALUES (%s,%s)
+                """, (fachname, dosierung))
+
+                message = "✅ Medizin gespeichert!"
+
+            # -------- nimmt (Patient ↔ Medizin) --------
+            elif form_type == "nimmt":
+                patientennummer = int(request.form["patientennummer"])
+                fachname = request.form["fachname"]
+
+                db_write("""
+                    INSERT INTO nimmt (patientennummer, fachname)
+                    VALUES (%s,%s)
+                """, (patientennummer, fachname))
+
+                message = "✅ Beziehung 'nimmt' gespeichert!"
+
+            # -------- behandelt (Patient ↔ Arzt) --------
+            elif form_type == "behandelt":
+                patientennummer = int(request.form["patientennummer"])
+                aerztenummer = int(request.form["aerztenummer"])
+
+                db_write("""
+                    INSERT INTO behandelt (patientennummer, `ärztenummer`)
+                    VALUES (%s,%s)
+                """, (patientennummer, aerztenummer))
+
+                message = "✅ Beziehung 'behandelt' gespeichert!"
+
+        except Exception as e:
+            error = f"❌ Fehler: {e}"
+
+    # Für Dropdowns (praktisch):
+    patients = db_read("SELECT patientennummer, name FROM patient ORDER BY patientennummer", ())
+    doctors = db_read("SELECT `ärztenummer`, name FROM arzt ORDER BY `ärztenummer`", ())
+    meds = db_read("SELECT fachname FROM medizin ORDER BY fachname", ())
+
+    return render_template("erfassen.html", message=message, error=error,
+                           patients=patients, doctors=doctors, meds=meds)
+
 # DB Explorer routes
 @app.route("/dbexplorer", methods=["GET", "POST"])
 @login_required
