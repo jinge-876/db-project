@@ -1,0 +1,30 @@
+{% extends "base.html" %}
+{% block content %}
+
+<h2>➕ Arzt erfassen</h2>
+
+<form method="POST">
+  <div class="form-group">
+    <label>Ärztenummer</label>
+    <input name="aerztenummer" type="number" class="form-control" required>
+  </div>
+
+  <div class="form-group">
+    <label>Name</label>
+    <input name="name" class="form-control" required>
+  </div>
+
+  <div class="form-group">
+    <label>Spezialisierung</label>
+    <input name="spezialisierung" class="form-control" required>
+  </div>
+
+  <div class="form-group">
+    <label>Anstellzeit (Jahre)</label>
+    <input name="anstellzeit" type="number" class="form-control" required>
+  </div>
+
+  <button class="btn btn-primary" type="submit">Speichern</button>
+</form>
+
+{% endblock %}
