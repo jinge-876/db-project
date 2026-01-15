@@ -395,5 +395,22 @@ def new_arzt():
 
     return render_template("arzt_new.html")
 
+@app.route("/aufenthalt/new", methods=["GET", "POST"])
+@login_required
+def new_aufenthalt():
+    if request.method == "POST":
+        bettnummer = int(request.form["bettnummer"])
+        pflegebedarf = request.form["pflegebedarf"]
+        anfangsdatum = request.form["anfangsdatum"]  # Format: YYYY-MM-DD
+
+        db_write("""
+            INSERT INTO aktuellerAufenthalt (bettnummer, pflegebedarf, anfangsdatum)
+            VALUES (%s, %s, %s)
+        """, (bettnummer, pflegebedarf, anfangsdatum))
+
+        return redirect(url_for("dbexplorer"))
+
+    return render_template("aufenthalt_new.html")
+
 if __name__ == "__main__":
     app.run()
