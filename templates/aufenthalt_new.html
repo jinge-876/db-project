@@ -1,0 +1,29 @@
+{% extends "base.html" %}
+{% block content %}
+
+<h2>➕ Aktuellen Aufenthalt erfassen</h2>
+
+<form method="POST">
+  <div class="form-group">
+    <label>Bettnummer</label>
+    <input name="bettnummer" type="number" class="form-control" required>
+  </div>
+
+  <div class="form-group">
+    <label>Pflegebedarf</label>
+    <select name="pflegebedarf" class="form-control" required>
+      <option value="niedrig">niedrig</option>
+      <option value="mittel">mittel</option>
+      <option value="hoch">hoch</option>
+    </select>
+  </div>
+
+  <div class="form-group">
+    <label>Anfangsdatum</label>
+    <input name="anfangsdatum" type="date" class="form-control" required>
+  </div>
+
+  <button class="btn btn-primary" type="submit">Speichern</button>
+</form>
+
+{% endblock %}
