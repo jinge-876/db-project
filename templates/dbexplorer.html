@@ -264,15 +264,9 @@
                                value="{{ request.form.get('search_value', '') }}">
                     </div>
                     
-                    <div class="form-group">
-                        <label for="limit">Limit:</label>
-                        <input type="number" name="limit" id="limit" 
-                               value="{{ request.form.get('limit', '50') }}" 
-                               min="1" max="1000">
-                    </div>
                 </div>
                 
-                <button type="submit">🔎 Daten anzeigen</button>
+                <button type="submit">Daten anzeigen</button>
             </form>
         </div>
         
