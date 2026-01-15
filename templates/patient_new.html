@@ -1,0 +1,50 @@
+{% extends "base.html" %}
+{% block content %}
+
+<h2>➕ Patient erfassen</h2>
+
+<form method="POST">
+  <div class="form-group">
+    <label>Patientennummer</label>
+    <input name="patientennummer" type="number" class="form-control" required>
+  </div>
+
+  <div class="form-group">
+    <label>Name</label>
+    <input name="name" class="form-control" required>
+  </div>
+
+  <div class="form-group">
+    <label>Alter</label>
+    <input name="alter" type="number" class="form-control" required>
+  </div>
+
+  <div class="form-group">
+    <label>Krankenkasse</label>
+    <input name="krankenkasse" class="form-control">
+  </div>
+
+  <div class="form-group">
+    <label>Krankheiten</label>
+    <textarea name="krankheiten" class="form-control"></textarea>
+  </div>
+
+  <div class="form-group">
+    <label>Ehemalige Aufenthalte</label>
+    <textarea name="ehemalige_aufenthalte" class="form-control"></textarea>
+  </div>
+
+  <div class="form-group">
+    <label>Ehemalige Medikamente</label>
+    <textarea name="ehemalige_medikamente" class="form-control"></textarea>
+  </div>
+
+  <div class="form-group">
+    <label>Bettnummer</label>
+    <input name="bettnummer" type="number" class="form-control" value="0">
+  </div>
+
+  <button class="btn btn-primary" type="submit">Speichern</button>
+</form>
+
+{% endblock %}
