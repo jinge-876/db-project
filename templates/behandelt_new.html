@@ -1,0 +1,36 @@
+{% extends "base.html" %}
+{% block content %}
+
+<h2>➕ Patient wird behandelt von Arzt</h2>
+
+<form method="POST">
+
+  <div class="form-group">
+    <label>Patient</label>
+    <select name="patientennummer" class="form-control" required>
+      {% for p in patients %}
+        <option value="{{ p.patientennummer }}">
+          {{ p.name }} ({{ p.patientennummer }})
+        </option>
+      {% endfor %}
+    </select>
+  </div>
+
+  <div class="form-group">
+    <label>Arzt</label>
+    <select name="aerztenummer" class="form-control" required>
+      {% for d in doctors %}
+        <option value="{{ d['ärztenummer'] }}">
+          {{ d.name }} ({{ d['ärztenummer'] }})
+        </option>
+      {% endfor %}
+    </select>
+  </div>
+
+  <button class="btn btn-primary" type="submit">
+    Speichern
+  </button>
+
+</form>
+
+{% endblock %}
