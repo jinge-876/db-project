@@ -213,8 +213,6 @@ def dbexplorer():
     """
     # Liste aller verfügbaren Tabellen
     available_tables = [
-        "users", 
-        "todos", 
         "patient", 
         "medizin", 
         "arzt", 
