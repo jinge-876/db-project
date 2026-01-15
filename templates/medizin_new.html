@@ -1,0 +1,20 @@
+{% extends "base.html" %}
+{% block content %}
+
+<h2>➕ Medikament erfassen</h2>
+
+<form method="POST">
+  <div class="form-group">
+    <label>Medikament / Fachname</label>
+    <input name="fachname" class="form-control" required>
+  </div>
+
+  <div class="form-group">
+    <label>Dosierung</label>
+    <input name="dosierung" class="form-control" required>
+  </div>
+
+  <button class="btn btn-primary" type="submit">Speichern</button>
+</form>
+
+{% endblock %}
