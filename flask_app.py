@@ -356,5 +356,25 @@ def dbexplorer():
         error=error
     )
 
+@app.route("/patient/new", methods=["GET", "POST"])
+@login_required
+def new_patient():
+    if request.method == "POST":
+        patientennummer = request.form["patientennummer"]
+        alter = request.form["alter"]
+        name = request.form["name"]
+        krankenkasse = request.form["krankenkasse"]
+        krankheiten = request.form["krankheiten"]
+
+        db_write("""
+            INSERT INTO patient
+            (patientennummer, `alter`, name, krankenkasse, krankheiten)
+            VALUES (%s, %s, %s, %s, %s)
+        """, (patientennummer, alter, name, krankenkasse, krankheiten))
+
+        return redirect(url_for("dbexplorer"))
+
+    return render_template("patient_new.html")
+
 if __name__ == "__main__":
     app.run()
