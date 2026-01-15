@@ -440,5 +440,21 @@ def new_nimmt():
         medikamente=medikamente
     )
 
+@app.route("/medizin/new", methods=["GET", "POST"])
+@login_required
+def new_medizin():
+    if request.method == "POST":
+        fachname = request.form["fachname"].strip()
+        dosierung = request.form["dosierung"].strip()
+
+        db_write("""
+            INSERT INTO medizin (fachname, dosierung)
+            VALUES (%s, %s)
+        """, (fachname, dosierung))
+
+        return redirect(url_for("dbexplorer"))
+
+    return render_template("medizin_new.html")
+
 if __name__ == "__main__":
     app.run()
