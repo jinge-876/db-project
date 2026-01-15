@@ -456,5 +456,33 @@ def new_medizin():
 
     return render_template("medizin_new.html")
 
+@app.route("/behandelt/new", methods=["GET", "POST"])
+@login_required
+def new_behandelt():
+    if request.method == "POST":
+        patientennummer = int(request.form["patientennummer"])
+        aerztenummer = int(request.form["aerztenummer"])
+
+        db_write("""
+            INSERT INTO behandelt (patientennummer, `ärztenummer`)
+            VALUES (%s, %s)
+        """, (patientennummer, aerztenummer))
+
+        return redirect(url_for("dbexplorer"))
+
+    # Dropdown-Daten laden
+    patients = db_read(
+        "SELECT patientennummer, name FROM patient ORDER BY name"
+    )
+    doctors = db_read(
+        "SELECT `ärztenummer`, name FROM arzt ORDER BY name"
+    )
+
+    return render_template(
+        "behandelt_new.html",
+        patients=patients,
+        doctors=doctors
+    )
+
 if __name__ == "__main__":
     app.run()
