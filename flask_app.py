@@ -109,7 +109,6 @@ def register():
     )
 
 @app.route("/logout")
-@login_required
 def logout():
     logout_user()
     return redirect(url_for("index"))
@@ -117,7 +116,6 @@ def logout():
 
 # --- DB visualisation routes ---
 @app.route("/db_viz")
-@login_required
 def db_viz():
     """
     Renders a D3 page that visualizes the database objects (users + todos)
@@ -126,7 +124,6 @@ def db_viz():
     return render_template("db_viz.html")
 
 @app.route("/db_viz/data")
-@login_required
 def db_viz_data():
     classes = []
 
@@ -178,7 +175,6 @@ def db_viz_data():
 
 # App routes
 @app.route("/", methods=["GET", "POST"])
-@login_required
 def index():
     # GET
     if request.method == "GET":
@@ -192,20 +188,17 @@ def index():
     return redirect(url_for("index"))
 
 @app.post("/complete")
-@login_required
 def complete():
     todo_id = request.form.get("id")
     db_write("DELETE FROM todos WHERE user_id=%s AND id=%s", (current_user.id, todo_id,))
     return redirect(url_for("index"))
 
 @app.route("/users", methods=["GET"])
-@login_required
 def users():
     users = db_read("SELECT username FROM users ORDER BY username", ())
     return render_template("users.html", users=users)
 
 @app.route("/erfassen", methods=["GET", "POST"])
-@login_required
 def erfassen():
     message = None
     error = None
@@ -298,7 +291,6 @@ def erfassen():
 
 # DB Explorer routes
 @app.route("/dbexplorer", methods=["GET", "POST"])
-@login_required
 def dbexplorer():
     """
     Interactive database explorer that lets users view any table
@@ -357,7 +349,6 @@ def dbexplorer():
     )
 
 @app.route("/patient/new", methods=["GET", "POST"])
-@login_required
 def new_patient():
     if request.method == "POST":
         patientennummer = request.form["patientennummer"]
@@ -378,7 +369,6 @@ def new_patient():
     return render_template("patient_new.html")
 
 @app.route("/arzt/new", methods=["GET", "POST"])
-@login_required
 def new_arzt():
     if request.method == "POST":
         aerztenummer = int(request.form["aerztenummer"])
@@ -396,7 +386,6 @@ def new_arzt():
     return render_template("arzt_new.html")
 
 @app.route("/aufenthalt/new", methods=["GET", "POST"])
-@login_required
 def new_aufenthalt():
     if request.method == "POST":
         bettnummer = int(request.form["bettnummer"])
@@ -413,7 +402,6 @@ def new_aufenthalt():
     return render_template("aufenthalt_new.html")
 
 @app.route("/nimmt/new", methods=["GET", "POST"])
-@login_required
 def new_nimmt():
     if request.method == "POST":
         patientennummer = int(request.form["patientennummer"])
@@ -441,7 +429,6 @@ def new_nimmt():
     )
 
 @app.route("/medizin/new", methods=["GET", "POST"])
-@login_required
 def new_medizin():
     if request.method == "POST":
         fachname = request.form["fachname"].strip()
@@ -457,7 +444,6 @@ def new_medizin():
     return render_template("medizin_new.html")
 
 @app.route("/behandelt/new", methods=["GET", "POST"])
-@login_required
 def new_behandelt():
     if request.method == "POST":
         patientennummer = int(request.form["patientennummer"])
