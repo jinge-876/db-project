@@ -58,18 +58,9 @@
 
         <div id="navbar" class="collapse navbar-collapse">
           <ul class="nav navbar-nav navbar-right">
-
-            {% if current_user.is_authenticated %}
-
-              <li><a href="#">Hallo, {{ current_user.username }}</a></li>
-              <li><a href="{{ url_for('logout') }}">Logout</a></li>
-
-            {% else %}
-
-              <li><a href="{{ url_for('login') }}">Login</a></li>
-              <li><a href="{{ url_for('register') }}">Registrieren</a></li>
-
-            {% endif %}
+            <li><a href="/">Startseite</a></li>
+            <li><a href="/dbexplorer">Datenbank</a></li>
+            <li><a href="/db_viz">Visualisierung</a></li>
           </ul>
         </div>
       </div>
