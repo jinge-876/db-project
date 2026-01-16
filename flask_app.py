@@ -485,5 +485,12 @@ def delete_patient():
 
     return redirect(url_for("patients_list"))
 
+@app.get("/patient")
+def patients_list():
+    patients = db_read(
+        "SELECT patientennummer, name, `alter`, krankenkasse, bettnummer FROM patient ORDER BY patientennummer"
+    )
+    return render_template("patients_list.html", patients=patients)
+
 if __name__ == "__main__":
     app.run()
