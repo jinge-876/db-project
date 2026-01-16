@@ -507,5 +507,12 @@ def delete_arzt():
 
     return redirect(url_for("doctors_list"))
 
+@app.get("/arzt")
+def doctors_list():
+    doctors = db_read(
+        "SELECT `ärztenummer`, name, spezialisierung, anstellzeit FROM arzt ORDER BY `ärztenummer`"
+    )
+    return render_template("doctors_list.html", doctors=doctors)
+
 if __name__ == "__main__":
     app.run()
