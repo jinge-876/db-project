@@ -562,5 +562,35 @@ def delete_nimmt():
     )
     return redirect(url_for("nimmt_list"))
 
+@app.get("/behandelt")
+def behandelt_list():
+    rows = db_read("""
+        SELECT
+          b.patientennummer,
+          p.name AS patient_name,
+          b.`ärztenummer`,
+          a.name AS arzt_name,
+          a.spezialisierung
+        FROM behandelt b
+        LEFT JOIN patient p ON p.patientennummer = b.patientennummer
+        LEFT JOIN arzt a ON a.`ärztenummer` = b.`ärztenummer`
+        ORDER BY b.patientennummer, b.`ärztenummer`
+    """)
+    return render_template("behandelt_list.html", rows=rows)
+
+@app.post("/behandelt/delete")
+def delete_behandelt():
+    patientennummer = request.form.get("patientennummer")
+    aerztenummer = request.form.get("aerztenummer")
+
+    if not patientennummer or not aerztenummer:
+        return redirect(url_for("behandelt_list"))
+
+    db_write(
+        "DELETE FROM behandelt WHERE patientennummer=%s AND `ärztenummer`=%s",
+        (patientennummer, aerztenummer)
+    )
+    return redirect(url_for("behandelt_list"))
+
 if __name__ == "__main__":
     app.run()
