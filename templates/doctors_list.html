@@ -1,0 +1,39 @@
+{% extends "base.html" %}
+{% block content %}
+
+<h2>👨‍⚕️ Ärzte</h2>
+
+<p>
+  <a class="btn btn-success" href="/arzt/new">➕ Arzt erfassen</a>
+</p>
+
+<table class="table table-striped">
+  <thead>
+    <tr>
+      <th>Nr</th>
+      <th>Name</th>
+      <th>Spezialisierung</th>
+      <th>Anstellzeit</th>
+      <th></th>
+    </tr>
+  </thead>
+  <tbody>
+    {% for d in doctors %}
+      <tr>
+        <td>{{ d['ärztenummer'] }}</td>
+        <td>{{ d.name }}</td>
+        <td>{{ d.spezialisierung }}</td>
+        <td>{{ d.anstellzeit }}</td>
+        <td style="text-align:right;">
+          <form method="POST" action="/arzt/delete" style="display:inline;"
+                onsubmit="return confirm('Arzt wirklich löschen?');">
+            <input type="hidden" name="aerztenummer" value="{{ d['ärztenummer'] }}">
+            <button class="btn btn-danger btn-sm" type="submit">🗑 Löschen</button>
+          </form>
+        </td>
+      </tr>
+    {% endfor %}
+  </tbody>
+</table>
+
+{% endblock %}
