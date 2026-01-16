@@ -592,5 +592,23 @@ def delete_behandelt():
     )
     return redirect(url_for("behandelt_list"))
 
+@app.get("/aufenthalt")
+def aufenthalt_list():
+    rows = db_read("""
+        SELECT bettnummer, pflegebedarf, anfangsdatum
+        FROM aktuellerAufenthalt
+        ORDER BY bettnummer
+    """)
+    return render_template("aufenthalt_list.html", rows=rows)
+
+@app.post("/aufenthalt/delete")
+def delete_aufenthalt():
+    bettnummer = request.form.get("bettnummer")
+    if not bettnummer:
+        return redirect(url_for("aufenthalt_list"))
+
+    db_write("DELETE FROM aktuellerAufenthalt WHERE bettnummer=%s", (bettnummer,))
+    return redirect(url_for("aufenthalt_list"))
+
 if __name__ == "__main__":
     app.run()
