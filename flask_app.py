@@ -514,5 +514,24 @@ def doctors_list():
     )
     return render_template("doctors_list.html", doctors=doctors)
 
+@app.get("/medizin")
+def meds_list():
+    meds = db_read("SELECT fachname, dosierung FROM medizin ORDER BY fachname")
+    return render_template("meds_list.html", meds=meds)
+
+@app.post("/medizin/delete")
+def delete_medizin():
+    fachname = request.form.get("fachname")
+    if not fachname:
+        return redirect(url_for("meds_list"))
+
+    # Beziehungen zuerst löschen (nimmt referenziert medizin.fachname)
+    db_write("DELETE FROM nimmt WHERE fachname=%s", (fachname,))
+
+    # Medikament löschen
+    db_write("DELETE FROM medizin WHERE fachname=%s", (fachname,))
+
+    return redirect(url_for("meds_list"))
+
 if __name__ == "__main__":
     app.run()
