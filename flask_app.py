@@ -492,5 +492,20 @@ def patients_list():
     )
     return render_template("patients_list.html", patients=patients)
 
+@app.post("/arzt/delete")
+def delete_arzt():
+    aerztenummer = request.form.get("aerztenummer")
+
+    if not aerztenummer:
+        return redirect(url_for("doctors_list"))
+
+    # 1) Beziehungen zuerst löschen (wegen Foreign Keys)
+    db_write("DELETE FROM behandelt WHERE `ärztenummer`=%s", (aerztenummer,))
+
+    # 2) Arzt löschen
+    db_write("DELETE FROM arzt WHERE `ärztenummer`=%s", (aerztenummer,))
+
+    return redirect(url_for("doctors_list"))
+
 if __name__ == "__main__":
     app.run()
