@@ -26,7 +26,6 @@ app.secret_key = "supersecret"
 
 # Init auth
 login_manager.init_app(app)
-login_manager.login_view = "login"
 
 # Init DB schema + seed (SAFE)
 try:
