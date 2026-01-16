@@ -1,0 +1,41 @@
+{% extends "base.html" %}
+{% block content %}
+
+<h2>🧑‍⚕️ Patienten</h2>
+
+<p>
+  <a class="btn btn-success" href="/patient/new">➕ Patient erfassen</a>
+</p>
+
+<table class="table table-striped">
+  <thead>
+    <tr>
+      <th>Nr</th>
+      <th>Name</th>
+      <th>Alter</th>
+      <th>Krankenkasse</th>
+      <th>Bett</th>
+      <th></th>
+    </tr>
+  </thead>
+  <tbody>
+    {% for p in patients %}
+      <tr>
+        <td>{{ p.patientennummer }}</td>
+        <td>{{ p.name }}</td>
+        <td>{{ p.alter }}</td>
+        <td>{{ p.krankenkasse }}</td>
+        <td>{{ p.bettnummer }}</td>
+        <td style="text-align:right;">
+          <form method="POST" action="/patient/delete" style="display:inline;"
+                onsubmit="return confirm('Patient wirklich löschen?');">
+            <input type="hidden" name="patientennummer" value="{{ p.patientennummer }}">
+            <button class="btn btn-danger btn-sm" type="submit">🗑 Löschen</button>
+          </form>
+        </td>
+      </tr>
+    {% endfor %}
+  </tbody>
+</table>
+
+{% endblock %}
