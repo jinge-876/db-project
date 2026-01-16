@@ -1,0 +1,42 @@
+{% extends "base.html" %}
+{% block content %}
+
+<h2>🔗 Behandelt (Patient ↔ Arzt)</h2>
+
+<p>
+  <a class="btn btn-success" href="/behandelt/new">➕ Beziehung erfassen</a>
+</p>
+
+<table class="table table-striped">
+  <thead>
+    <tr>
+      <th>Patient</th>
+      <th>Patient-Nr</th>
+      <th>Arzt</th>
+      <th>Arzt-Nr</th>
+      <th>Spezialisierung</th>
+      <th></th>
+    </tr>
+  </thead>
+  <tbody>
+    {% for r in rows %}
+      <tr>
+        <td>{{ r.patient_name }}</td>
+        <td>{{ r.patientennummer }}</td>
+        <td>{{ r.arzt_name }}</td>
+        <td>{{ r['ärztenummer'] }}</td>
+        <td>{{ r.spezialisierung }}</td>
+        <td style="text-align:right;">
+          <form method="POST" action="/behandelt/delete" style="display:inline;"
+                onsubmit="return confirm('Diese Beziehung wirklich löschen?');">
+            <input type="hidden" name="patientennummer" value="{{ r.patientennummer }}">
+            <input type="hidden" name="aerztenummer" value="{{ r['ärztenummer'] }}">
+            <button class="btn btn-danger btn-sm" type="submit">🗑 Löschen</button>
+          </form>
+        </td>
+      </tr>
+    {% endfor %}
+  </tbody>
+</table>
+
+{% endblock %}
