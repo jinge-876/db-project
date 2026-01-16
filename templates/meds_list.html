@@ -1,0 +1,35 @@
+{% extends "base.html" %}
+{% block content %}
+
+<h2>💊 Medikamente</h2>
+
+<p>
+  <a class="btn btn-success" href="/medizin/new">➕ Medikament erfassen</a>
+</p>
+
+<table class="table table-striped">
+  <thead>
+    <tr>
+      <th>Fachname</th>
+      <th>Dosierung</th>
+      <th></th>
+    </tr>
+  </thead>
+  <tbody>
+    {% for m in meds %}
+      <tr>
+        <td>{{ m.fachname }}</td>
+        <td>{{ m.dosierung }}</td>
+        <td style="text-align:right;">
+          <form method="POST" action="/medizin/delete" style="display:inline;"
+                onsubmit="return confirm('Medikament wirklich löschen?');">
+            <input type="hidden" name="fachname" value="{{ m.fachname }}">
+            <button class="btn btn-danger btn-sm" type="submit">🗑 Löschen</button>
+          </form>
+        </td>
+      </tr>
+    {% endfor %}
+  </tbody>
+</table>
+
+{% endblock %}
